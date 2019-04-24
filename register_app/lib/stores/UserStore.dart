@@ -14,3 +14,5 @@ abstract class UserStoreBase implements Store {
     this.user = user;
   }
 }
+
+final userStore = UserStore();

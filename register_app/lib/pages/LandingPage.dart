@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mobx/mobx.dart';
+import 'package:register_app/models/User.dart';
+import 'package:register_app/stores/UserStore.dart';
 
 class LandingPage extends StatelessWidget {
   BuildContext _ctx;
 
   void _handleScanQRCodeButtonPressed() {
-    // Changes out the current router with a new root route
-    Navigator.pushNamedAndRemoveUntil(_ctx, '/home', (_) => false);
+    final user = User(
+      uuid: 'TEST',
+      firstname: 'Dennis',
+      lastname: 'Kievits'
+    );
+
+    final dispose = reaction((_) => userStore.user, (_) async {
+      // Changes out the current router with a new root route
+      await Navigator.pushNamedAndRemoveUntil(_ctx, '/home', (_) => false);
+    });
+    userStore.setUser(user);
+    dispose();
   }
 
   @override
