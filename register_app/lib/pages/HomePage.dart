@@ -25,8 +25,7 @@ class HomePage extends StatelessWidget {
               ),
               onPressed: () {
                 // TODO: Add uitschrijven actie
-
-                Navigator.of(context).pop();
+                Navigator.pushNamedAndRemoveUntil(_ctx, '/', (_) => false);
               },
             )
           ],
@@ -58,7 +57,9 @@ class HomePage extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Text("Content"),
+              child: Container(
+                color: Colors.white30
+              ),
             ),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 50),
