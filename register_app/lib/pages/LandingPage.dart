@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:register_app/models/User.dart';
 import 'package:register_app/stores/UserStore.dart';
+import 'package:register_app/utils/validation.dart';
 
 class LandingPage extends StatelessWidget {
   BuildContext _ctx;
@@ -38,6 +39,27 @@ class LandingPage extends StatelessWidget {
     }
 
     if (barcode == null) {
+      return;
+    }
+
+    if (!isValidUuidv4(barcode)) {
+      await showDialog(
+          context: _ctx,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Onjuist formaat"),
+              content:
+                  Text("De gescande QR Code is niet in het juiste formaat."),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("Ok"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          });
       return;
     }
 
