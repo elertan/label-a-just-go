@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 import 'package:register_app/stores/UserStore.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,8 +11,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   BuildContext _ctx;
 
-  void _handleUitschrijvenPressed() {
-    showDialog(
+  void _handleUitschrijvenPressed() async {
+    await showDialog(
         context: _ctx,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -34,7 +33,8 @@ class _HomePageState extends State<HomePage> {
                 ),
                 onPressed: () async {
                   // TODO: Add uitschrijven actie
-                  await Navigator.pushNamedAndRemoveUntil(_ctx, '/', (_) => false);
+                  await Navigator.pushNamedAndRemoveUntil(
+                      _ctx, '/', (_) => false);
                   userStore.setUser(null);
                 },
               )
@@ -66,7 +66,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Expanded(
-              child: Container(color: Colors.white30),
+              child: Observer(
+                builder: (_) => Text(
+                  userStore.user.uuid,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 50),
