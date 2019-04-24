@@ -5,7 +5,8 @@ class LandingPage extends StatelessWidget {
   BuildContext _ctx;
 
   void _handleScanQRCodeButtonPressed() {
-    Navigator.popAndPushNamed(_ctx, '/home');
+    // Changes out the current router with a new root route
+    Navigator.pushNamedAndRemoveUntil(_ctx, '/home', (_) => false);
   }
 
   @override
