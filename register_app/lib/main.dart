@@ -1,9 +1,15 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:register_app/pages/HomePage.dart';
 import 'package:register_app/pages/LandingPage.dart';
 import 'package:register_app/pages/RegisterPage.dart';
 
-void main() => runApp(MyApp());
+List<CameraDescription> cameras;
+
+Future<void> main() async {
+  cameras = await availableCameras();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

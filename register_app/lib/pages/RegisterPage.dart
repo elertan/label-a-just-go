@@ -1,7 +1,9 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:register_app/main.dart';
 import 'package:register_app/models/User.dart';
 import 'package:register_app/stores/UserStore.dart';
 
@@ -15,6 +17,8 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  CameraController _cameraController;
+
   final String uuid;
 
   _RegisterPageState({@required this.uuid});
@@ -25,8 +29,27 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
+    final frontFacingCameras = cameras
+        .where((camera) => camera.lensDirection == CameraLensDirection.front)
+        .toList();
+    final camera =
+        frontFacingCameras.length > 0 ? frontFacingCameras[0] : cameras[0];
+
+    _cameraController = CameraController(camera, ResolutionPreset.medium);
+    _cameraController.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
 
     _fetchData();
+  }
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
   }
 
   void _fetchData() async {
@@ -44,6 +67,10 @@ class _RegisterPageState extends State<RegisterPage> {
     });
     userStore.setUser(user);
     dispose();
+  }
+
+  void _handleRegistrerenPressed() async {
+    await Navigator.pushNamedAndRemoveUntil(_ctx, '/home', (_) => false);
   }
 
   Widget _renderLoading() {
@@ -73,8 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
           color: Colors.grey,
           padding: EdgeInsets.symmetric(vertical: 20),
           child: Observer(
-            builder: (_) =>
-                Text(
+            builder: (_) => Text(
                   "${userStore.user.firstname} ${userStore.user.lastname}",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 21, color: Colors.white),
@@ -90,7 +116,10 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
         Expanded(
-          child: Text("")
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            child: CameraPreview(_cameraController),
+          ),
         ),
         Container(
           margin: EdgeInsets.symmetric(horizontal: 50),
@@ -100,6 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
               "Registreren",
               style: TextStyle(fontSize: 16),
             ),
+            onPressed: _handleRegistrerenPressed,
           ),
         ),
       ],
