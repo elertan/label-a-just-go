@@ -62,15 +62,16 @@ class LandingPage extends StatelessWidget {
           });
       return;
     }
+    Navigator.pushNamed(_ctx, '/register', arguments: barcode);
 
-    final user = User(uuid: barcode, firstname: 'Dennis', lastname: 'Kievits');
-
-    final dispose = reaction((_) => userStore.user, (_) async {
-      // Changes out the current router with a new root route
-      await Navigator.pushNamedAndRemoveUntil(_ctx, '/home', (_) => false);
-    });
-    userStore.setUser(user);
-    dispose();
+//    final user = User(uuid: barcode, firstname: 'Dennis', lastname: 'Kievits');
+//
+//    final dispose = reaction((_) => userStore.user, (_) async {
+//      // Changes out the current router with a new root route
+//      await Navigator.pushNamedAndRemoveUntil(_ctx, '/home', (_) => false);
+//    });
+//    userStore.setUser(user);
+//    dispose();
   }
 
   @override
