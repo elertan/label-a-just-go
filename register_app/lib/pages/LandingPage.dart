@@ -107,7 +107,7 @@ class LandingPage extends StatelessWidget {
               ),
             ),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 50),
+              margin: EdgeInsets.only(left: 50, right: 50, bottom: 20),
               child: Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
