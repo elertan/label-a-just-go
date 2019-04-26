@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -6,6 +5,7 @@ import 'package:mobx/mobx.dart';
 import 'package:register_app/main.dart';
 import 'package:register_app/models/User.dart';
 import 'package:register_app/stores/UserStore.dart';
+import 'package:register_app/ui/FaceRecorder.dart';
 
 class RegisterPage extends StatefulWidget {
   final String uuid;
@@ -17,8 +17,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  CameraController _cameraController;
-
   final String uuid;
 
   _RegisterPageState({@required this.uuid});
@@ -29,27 +27,8 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    final frontFacingCameras = cameras
-        .where((camera) => camera.lensDirection == CameraLensDirection.front)
-        .toList();
-    final camera =
-        frontFacingCameras.length > 0 ? frontFacingCameras[0] : cameras[0];
-
-    _cameraController = CameraController(camera, ResolutionPreset.medium);
-    _cameraController.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
 
     _fetchData();
-  }
-
-  @override
-  void dispose() {
-    _cameraController?.dispose();
-    super.dispose();
   }
 
   void _fetchData() async {
@@ -118,7 +97,9 @@ class _RegisterPageState extends State<RegisterPage> {
         Expanded(
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            child: CameraPreview(_cameraController),
+            child: FaceRecorder(
+              cameras: cameras,
+            ),
           ),
         ),
         Container(
