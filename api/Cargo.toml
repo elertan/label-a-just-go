@@ -1,0 +1,18 @@
+[package]
+name = "api"
+version = "0.1.0"
+authors = ["Dennis Kievits <denkievits@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+rocket = "0.4.0"
+rocket_codegen = "0.4.0"
+serde = "1.0.90"
+serde_json = "1.0.39"
+serde_derive = "1.0.90"
+uuid = { version = "0.7.4", features = ["serde", "v4"] }
+
+[dependencies.rocket_contrib]
+version = "0.4.0"
+default-features = false
+features = ["json"]
