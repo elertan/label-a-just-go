@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:register_app/main.dart';
+import 'package:register_app/main.dart' as prefix0;
 import 'package:register_app/models/User.dart';
 import 'package:register_app/stores/UserStore.dart';
 import 'package:register_app/ui/FaceRecorder.dart';
@@ -52,6 +53,17 @@ class _RegisterPageState extends State<RegisterPage> {
     await Navigator.pushNamedAndRemoveUntil(_ctx, '/home', (_) => false);
   }
 
+  void _handleRecordPressed() async {
+    await Navigator.push(_ctx, MaterialPageRoute(
+      builder: (_) => Scaffold(
+        appBar: AppBar(
+          title: Text("Record face"),
+        ),
+        body: FaceRecorder(cameras: cameras),
+      ),
+    ));
+  }
+
   Widget _renderLoading() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,10 +107,14 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
         ),
         Expanded(
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            child: FaceRecorder(
-              cameras: cameras,
+          child: Center(
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              child: RaisedButton(
+                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                child: Text("Record Face"),
+                onPressed: _handleRecordPressed,
+              ),
             ),
           ),
         ),
