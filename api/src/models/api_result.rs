@@ -5,6 +5,7 @@ use serde::Serialize;
 pub enum ApiErrorCode {
     NotFound,
     NotImplemented,
+    Generic,
     ParserError
 }
 

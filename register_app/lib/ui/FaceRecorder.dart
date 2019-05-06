@@ -17,6 +17,7 @@ class _FaceRecorderState extends State<FaceRecorder> {
   List<CameraDescription> cameras;
   CameraDescription camera;
   bool loading = true;
+  bool capturing = false;
 
   _FaceRecorderState({@required this.cameras});
 
@@ -60,22 +61,27 @@ class _FaceRecorderState extends State<FaceRecorder> {
     super.dispose();
   }
 
+  void _handleCaptureButtonTapUp(TapUpDetails details) {
+    setState(() {
+      capturing = !capturing;
+    });
+  }
+
   Widget renderCaptureButton(BuildContext context) {
-    return GestureDetector(
-      child: ClipOval(
-        child: Container(
-          color: Colors.white,
-          height: 75,
-          width: 75,
-          padding: EdgeInsets.all(5),
-          child: ClipOval(
-            child: Container(
-              color: Colors.black,
-              padding: EdgeInsets.all(3),
+    return ClipOval(
+      child: Container(
+        color: capturing ? Colors.red : Colors.white,
+        height: 75,
+        width: 75,
+        padding: EdgeInsets.all(5),
+        child: ClipOval(
+          child: Container(
+            color: Colors.black,
+            padding: EdgeInsets.all(3),
+            child: GestureDetector(
+              onTapUp: _handleCaptureButtonTapUp,
               child: ClipOval(
-                child: Container(
-                  color: Colors.red
-                ),
+                child: Container(color: Colors.red),
               ),
             ),
           ),
@@ -107,10 +113,9 @@ class _FaceRecorderState extends State<FaceRecorder> {
           ),
           Positioned(
             child: Container(
-              alignment: Alignment.bottomCenter,
-              margin: EdgeInsets.only(bottom: 75),
-              child: renderCaptureButton(context)
-            ),
+                alignment: Alignment.bottomCenter,
+                margin: EdgeInsets.only(bottom: 75),
+                child: renderCaptureButton(context)),
           ),
         ],
       ),
