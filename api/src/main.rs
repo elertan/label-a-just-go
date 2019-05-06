@@ -3,6 +3,7 @@
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
+extern crate multipart;
 
 use rocket::Request;
 use rocket_contrib::json::JsonValue;
@@ -24,7 +25,8 @@ fn main() {
     rocket::ignite()
         .mount("/", rocket_codegen::routes![
             routes::ping,
-            routes::api::v1::registration_details
+            routes::api::v1::registration_details,
+            routes::api::v1::extract_face
         ])
         .register(rocket_codegen::catchers![not_found])
         .launch();

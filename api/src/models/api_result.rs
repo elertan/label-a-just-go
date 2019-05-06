@@ -3,7 +3,9 @@ use serde::Serialize;
 
 #[derive(Serialize, Deserialize)]
 pub enum ApiErrorCode {
-    NotFound
+    NotFound,
+    NotImplemented,
+    ParserError
 }
 
 #[derive(Serialize, Deserialize)]
