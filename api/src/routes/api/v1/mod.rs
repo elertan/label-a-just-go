@@ -29,7 +29,7 @@ pub fn extract_face(token: RocketUuid, data: Data) -> JsonValue {
     println!("data: {}", result.expect("Uploaded content failed"));
 
 //    python extract_face.py --detector face_detection_model --embedding-model openface_nn4.small2.v1.t7 --image test.temp
-    let output = Command::new("python")
+    let output = Command::new("python3")
 //        .current_dir(std::fs::canonicalize("./python").unwrap())
         .stdout(Stdio::piped())
         .args(&[
