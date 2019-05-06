@@ -18,7 +18,6 @@ class _FaceRecorderState extends State<FaceRecorder> {
   CameraDescription camera;
   bool loading = true;
 
-
   _FaceRecorderState({@required this.cameras});
 
   @override
@@ -38,7 +37,9 @@ class _FaceRecorderState extends State<FaceRecorder> {
     }
 
     // Choose a front facing camera as priority
-    final frontFacingCameras = cameras.where((x) => x.lensDirection == CameraLensDirection.front).toList();
+    final frontFacingCameras = cameras
+        .where((x) => x.lensDirection == CameraLensDirection.front)
+        .toList();
     if (frontFacingCameras.length > 0) {
       this.camera = frontFacingCameras[0];
     } else {
@@ -59,12 +60,34 @@ class _FaceRecorderState extends State<FaceRecorder> {
     super.dispose();
   }
 
+  Widget renderCaptureButton(BuildContext context) {
+    return GestureDetector(
+      child: ClipOval(
+        child: Container(
+          color: Colors.white,
+          height: 75,
+          width: 75,
+          padding: EdgeInsets.all(5),
+          child: ClipOval(
+            child: Container(
+              color: Colors.black,
+              padding: EdgeInsets.all(3),
+              child: ClipOval(
+                child: Container(
+                  color: Colors.red
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (loading) {
-      return Center(
-        child: CircularProgressIndicator()
-      );
+      return Center(child: CircularProgressIndicator());
     }
 
     if (camera == null) {
@@ -77,7 +100,20 @@ class _FaceRecorderState extends State<FaceRecorder> {
     }
 
     return Container(
-      child: CameraPreview(_controller),
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            child: CameraPreview(_controller),
+          ),
+          Positioned(
+            child: Container(
+              alignment: Alignment.bottomCenter,
+              margin: EdgeInsets.only(bottom: 75),
+              child: renderCaptureButton(context)
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

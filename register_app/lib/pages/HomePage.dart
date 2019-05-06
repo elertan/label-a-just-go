@@ -68,9 +68,9 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Observer(
                 builder: (_) => Text(
-                  userStore.user.uuid,
-                  textAlign: TextAlign.center,
-                ),
+                      userStore.user.uuid,
+                      textAlign: TextAlign.center,
+                    ),
               ),
             ),
             Container(
