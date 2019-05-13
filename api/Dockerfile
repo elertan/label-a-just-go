@@ -159,9 +159,10 @@ WORKDIR /
 
 RUN pip3 install imutils numpy argparse opencv-python
 
-RUN cargo install cargo-watch
-
 COPY . /docker/app/
 WORKDIR /docker/app/
 
-CMD cargo watch -x run
+RUN cargo install cargo-watch
+RUN cargo install diesel_cli --no-default-features --features postgres
+
+CMD diesel setup && diesel migration run && cargo watch -x run

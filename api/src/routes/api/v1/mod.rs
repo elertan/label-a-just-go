@@ -1,15 +1,29 @@
-use crate::models::user::User;
-use crate::extensions::uuid::RocketUuid;
-use crate::models::api_result::{ApiResult, ApiError, ApiErrorCode};
 use rocket::data::Data;
+use rocket::State;
 use rocket_contrib::json::JsonValue;
 
+use crate::extensions::uuid::RocketUuid;
+use crate::models::api_result::{ApiError, ApiErrorCode, ApiResult};
+use crate::models::user::UserAccount;
+use crate::RocketState;
+use crate::schema::*;
+use crate::diesel::prelude::*;
+
+
 #[get("/api/v1/registration-details/<token>")]
-pub fn registration_details(token: RocketUuid) -> JsonValue {
-    ApiResult::success(User {
-        uuid: token.to_string(),
+pub fn registration_details(rocket_state: State<RocketState>, token: RocketUuid) -> JsonValue {
+    let conn = rocket_state.conn.lock().expect("Unable to acquire lock on db conn");
+
+    let results = user_account
+        .filter(user_account::first_name.eq("Dennis"))
+        .limit(1)
+        .load::<UserAccount>(&conn)
+        .expect("Error loading user");
+
+    ApiResult::success(UserAccount {
+        uuid: token.get_uuid(),
         firstname: "Dennis".to_string(),
-        lastname: "Kievits".to_string(),
+        surname: "Kievits".to_string(),
     }).to_json()
 }
 

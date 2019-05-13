@@ -1,6 +1,8 @@
-#[derive(Serialize, Deserialize)]
-pub struct User {
-    pub uuid: String,
+use uuid::Uuid;
+
+#[derive(Serialize, Deserialize, Queryable)]
+pub struct UserAccount {
+    pub uuid: Uuid,
     pub firstname: String,
-    pub lastname: String,
+    pub surname: String,
 }

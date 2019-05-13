@@ -7,6 +7,7 @@ impl RocketUuid {
     pub fn to_string(&self) -> String {
         format!("{}", self.0)
     }
+    pub fn get_uuid(&self) -> Uuid { self.0 }
 }
 
 impl FromParam<'_> for RocketUuid {

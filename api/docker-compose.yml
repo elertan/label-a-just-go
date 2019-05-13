@@ -10,10 +10,12 @@ services:
     environment:
       ROCKET_PORT: 80
       ROCKET_ADDRESS: "0.0.0.0"
-      DB_USER: admin
-      DB_PASSWORD: admin
+      DATABASE_URL: "postgres://admin:admin@db/justgo"
     volumes:
       - ./src/:/docker/app/src/
+      - ./migrations/:/docker/app/migrations/
+    depends_on:
+      - db
   db:
     image: postgres
     ports:
