@@ -65,7 +65,7 @@ for i in range(0, detections.shape[2]):
         box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
         (startX, startY, endX, endY) = box.astype("int")
 
-        print('{' + '"l": {}, "r": {}, "t": {}, "b": {}'.format(startX, endX, startY, endY) + '}')
+        print('{' + '"start_x": {}, "end_x": {}, "start_y": {}, "end_y": {}'.format(startX, endX, startY, endY) + '}')
         has_echoed = True
         break
 

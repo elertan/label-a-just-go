@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:path_provider/path_provider.dart';
 
 class FaceRecorder extends StatefulWidget {
   List<CameraDescription> cameras;
@@ -18,6 +22,9 @@ class _FaceRecorderState extends State<FaceRecorder> {
   CameraDescription camera;
   bool loading = true;
   bool capturing = false;
+  int captureTimeSeconds = 0;
+  final int maxCaptureTime = 5;
+  Timer recordingTimer;
 
   _FaceRecorderState({@required this.cameras});
 
@@ -61,9 +68,55 @@ class _FaceRecorderState extends State<FaceRecorder> {
     super.dispose();
   }
 
-  void _handleCaptureButtonTapUp(TapUpDetails details) {
+  void _handleCaptureButtonTapUp(TapUpDetails details) async {
+    if (capturing) {
+      if (!_controller.value.isRecordingVideo) {
+        return;
+      }
+
+      try {
+        await _controller.stopVideoRecording();
+      } catch (e) {
+        // handle error
+        return;
+      }
+    } else {
+      final dir = await getApplicationDocumentsDirectory();
+      final dirPath = '${dir.path}/Movies/face_recording';
+      await Directory(dirPath).create(recursive: true);
+      final filePath = '$dirPath/recording.mp4';
+      final file = File(filePath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+
+      try {
+        await _controller.startVideoRecording(filePath);
+        if (recordingTimer != null) {
+          recordingTimer.cancel();
+        }
+        recordingTimer = Timer.periodic(Duration(milliseconds: 1000), handleTimerTick);
+      } catch (e) {
+        // handle error
+        return;
+      }
+    }
+
     setState(() {
       capturing = !capturing;
+    });
+  }
+
+  void handleTimerTick(Timer timer) {
+    setState(() {
+      captureTimeSeconds++;
+      if (captureTimeSeconds > maxCaptureTime) {
+        // Finished
+        timer.cancel();
+
+        // Save
+      }
+      capturing = false;
     });
   }
 
@@ -81,7 +134,17 @@ class _FaceRecorderState extends State<FaceRecorder> {
             child: GestureDetector(
               onTapUp: _handleCaptureButtonTapUp,
               child: ClipOval(
-                child: Container(color: Colors.red),
+                child: Container(
+                  color: Colors.red,
+                  child: capturing
+                      ? Center(
+                          child: Text(
+                            "${maxCaptureTime - captureTimeSeconds}",
+                            style: TextStyle(color: Colors.white, fontSize: 31),
+                          ),
+                        )
+                      : null,
+                ),
               ),
             ),
           ),
@@ -105,20 +168,32 @@ class _FaceRecorderState extends State<FaceRecorder> {
       );
     }
 
-    return Container(
-      child: Stack(
-        children: <Widget>[
-          Positioned(
-            child: CameraPreview(_controller),
-          ),
-          Positioned(
-            child: Container(
-                alignment: Alignment.bottomCenter,
-                margin: EdgeInsets.only(bottom: 75),
-                child: renderCaptureButton(context)),
-          ),
-        ],
+    final stackChildren = <Widget>[
+      Positioned(
+        child: CameraPreview(_controller),
       ),
+      Positioned(
+        child: Container(
+          alignment: Alignment.bottomCenter,
+          margin: EdgeInsets.only(bottom: 75),
+          child: renderCaptureButton(context),
+        ),
+      ),
+    ];
+
+    if (capturing) {
+      stackChildren.add(Positioned(
+        child: Container(
+          color: Color.fromARGB(100, 255, 255, 255),
+          margin: EdgeInsets.only(top: 20, left: 20),
+          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+          child: Text("Recording..."),
+        ),
+      ));
+    }
+
+    return Container(
+      child: Stack(children: stackChildren),
     );
   }
 }

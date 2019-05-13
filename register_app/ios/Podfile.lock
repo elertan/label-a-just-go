@@ -10,6 +10,8 @@ PODS:
   - MTBBarcodeScanner (5.0.8)
   - path_provider (0.0.1):
     - Flutter
+  - permission (0.0.1):
+    - Flutter
   - uni_links (0.0.1):
     - Flutter
 
@@ -19,6 +21,7 @@ DEPENDENCIES:
   - Flutter (from `.symlinks/flutter/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - permission (from `.symlinks/plugins/permission/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
 
 SPEC REPOS:
@@ -36,6 +39,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
+  permission:
+    :path: ".symlinks/plugins/permission/ios"
   uni_links:
     :path: ".symlinks/plugins/uni_links/ios"
 
@@ -46,6 +51,7 @@ SPEC CHECKSUMS:
   image_picker: 16e5fec1fbc87fd3b297c53e4048521eaf17cd06
   MTBBarcodeScanner: 5b97f10a037e2560ff104da413343c5ce9413911
   path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
+  permission: 51e2d3a8ef3490da0537667d7f1a6a1c5ba8ec47
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
 
 PODFILE CHECKSUM: aff02bfeed411c636180d6812254b2daeea14d09

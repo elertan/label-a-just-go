@@ -26,6 +26,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>We hebben toegang tot de camera nodig om QR codes te kunnen scannen en om foto's van je gezicht te kunnen maken.</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>We hebben toegang tot de microfoon nodig omdat bij beeldopname de microfoon automatisch is inbegrepen, we zullen deze informatie niet gebruiken.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

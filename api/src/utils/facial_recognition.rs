@@ -2,10 +2,10 @@ use std::process::{Command, Stdio};
 
 #[derive(Serialize, Deserialize)]
 pub struct ExtractFaceResult {
-    pub l: u32,
-    pub r: u32,
-    pub t: u32,
-    pub b: u32,
+    pub start_x: u32,
+    pub end_x: u32,
+    pub start_y: u32,
+    pub end_y: u32,
 }
 
 pub fn extract_face<'a>(filepath: &'a str) -> Result<ExtractFaceResult, &'static str> {
