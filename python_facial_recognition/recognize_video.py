@@ -14,41 +14,37 @@ import pickle
 import time
 import cv2
 import os
+import statistics 
+from statistics import mode 
 
-# construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--detector", required=True,
-	help="path to OpenCV's deep learning face detector")
-ap.add_argument("-m", "--embedding-model", required=True,
-	help="path to OpenCV's deep learning face embedding model")
-ap.add_argument("-r", "--recognizer", required=True,
-	help="path to model trained to recognize faces")
-ap.add_argument("-l", "--le", required=True,
-	help="path to label encoder")
-ap.add_argument("-c", "--confidence", type=float, default=0.5,
-	help="minimum probability to filter weak detections")
-args = vars(ap.parse_args())
-
+# config
+dectector="face_detection_model"
+embedding_model="openface_nn4.small2.v1.t7"
+recognizer="output/recognizer.pickle"
+le="output/le.pickle"
+confidence_c= 0.8
 # load our serialized face detector from disk
-print("[INFO] loading face detector...")
-protoPath = os.path.sep.join([args["detector"], "deploy.prototxt"])
-modelPath = os.path.sep.join([args["detector"],
+#print("[INFO] loading face detector...")
+protoPath = os.path.sep.join([dectector, "deploy.prototxt"])
+modelPath = os.path.sep.join([dectector,
 	"res10_300x300_ssd_iter_140000.caffemodel"])
 detector = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
 
 # load our serialized face embedding model from disk
-print("[INFO] loading face recognizer...")
-embedder = cv2.dnn.readNetFromTorch(args["embedding_model"])
+#print("[INFO] loading face recognizer...")
+embedder = cv2.dnn.readNetFromTorch(embedding_model)
 
 # load the actual face recognition model along with the label encoder
-recognizer = pickle.loads(open(args["recognizer"], "rb").read())
-le = pickle.loads(open(args["le"], "rb").read())
+recognizer = pickle.loads(open(recognizer, "rb").read())
+le = pickle.loads(open(le, "rb").read())
 
 # initialize the video stream, then allow the camera sensor to warm up
-print("[INFO] starting video stream...")
+#print("Starting video stream...")
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
-
+print("The cam is filming")
+guesslist = []
+speed= 20
 # start the FPS throughput estimator
 fps = FPS().start()
 
@@ -80,7 +76,7 @@ while True:
 		confidence = detections[0, 0, i, 2]
 
 		# filter out weak detections
-		if confidence > args["confidence"]:
+		if confidence > confidence_c:
 			# compute the (x, y)-coordinates of the bounding box for
 			# the face
 			box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
@@ -111,11 +107,12 @@ while True:
 			# draw the bounding box of the face along with the
 			# associated probability
 			text = "{}: {:.2f}%".format(name, proba * 100)
+			guesslist.append(name)
 			y = startY - 10 if startY - 10 > 10 else startY + 10
 			cv2.rectangle(frame, (startX, startY), (endX, endY),
-				(0, 0, 255), 2)
-			cv2.putText(frame, text, (startX, y),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
+				(0, 255,0), 2)
+			cv2.putText(frame, name, (startX, y),
+				cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 2)
 
 	# update the FPS counter
 	fps.update()
@@ -124,14 +121,22 @@ while True:
 	cv2.imshow("Frame", frame)
 	key = cv2.waitKey(1) & 0xFF
 
+	if(len(guesslist) > speed):
+		break
 	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
 		break
 
 # stop the timer and display FPS information
+if(mode(guesslist)=="d63560a7-913d-4074-8e6e-0c361ba7e681"):
+	print("Pepijn")
+if(mode(guesslist) == "unknown"):
+	print("Try again please.....")
+else:
+	print(mode(guesslist))
 fps.stop()
-print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+print("Elasped time: {:.2f}".format(fps.elapsed()))
+print("Approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
