@@ -15,6 +15,7 @@ import time
 import cv2
 import os
 import statistics 
+import json
 from statistics import mode 
 
 # config
@@ -23,29 +24,26 @@ embedding_model="openface_nn4.small2.v1.t7"
 recognizer="output/recognizer.pickle"
 le="output/le.pickle"
 confidence_c= 0.8
-# load our serialized face detector from disk
-#print("[INFO] loading face detector...")
+data = {}
+speed = 20
+data['user'] = []
+checklist = []
+
 protoPath = os.path.sep.join([dectector, "deploy.prototxt"])
 modelPath = os.path.sep.join([dectector,
 	"res10_300x300_ssd_iter_140000.caffemodel"])
 detector = cv2.dnn.readNetFromCaffe(protoPath, modelPath)
-
-# load our serialized face embedding model from disk
-#print("[INFO] loading face recognizer...")
 embedder = cv2.dnn.readNetFromTorch(embedding_model)
 
-# load the actual face recognition model along with the label encoder
 recognizer = pickle.loads(open(recognizer, "rb").read())
 le = pickle.loads(open(le, "rb").read())
 
-# initialize the video stream, then allow the camera sensor to warm up
-#print("Starting video stream...")
+
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
 print("The cam is filming")
 guesslist = []
-speed= 20
-# start the FPS throughput estimator
+
 fps = FPS().start()
 
 # loop over frames from the video file stream
@@ -53,9 +51,7 @@ while True:
 	# grab the frame from the threaded video stream
 	frame = vs.read()
 
-	# resize the frame to have a width of 600 pixels (while
-	# maintaining the aspect ratio), and then grab the image
-	# dimensions
+
 	frame = imutils.resize(frame, width=600)
 	(h, w) = frame.shape[:2]
 
@@ -107,12 +103,38 @@ while True:
 			# draw the bounding box of the face along with the
 			# associated probability
 			text = "{}: {:.2f}%".format(name, proba * 100)
-			guesslist.append(name)
-			y = startY - 10 if startY - 10 > 10 else startY + 10
-			cv2.rectangle(frame, (startX, startY), (endX, endY),
-				(0, 255,0), 2)
-			cv2.putText(frame, name, (startX, y),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 2)
+			if(name == "unknown"):
+				y = startY - 10 if startY - 10 > 10 else startY + 10
+				cv2.rectangle(frame, (startX, startY), (endX, endY),
+					(0, 0,255), 2)
+			if(name != "unknown" and name not in checklist ):
+				
+				guesslist.append(name)
+				y = startY - 10 if startY - 10 > 10 else startY + 10
+				cv2.rectangle(frame, (startX, startY), (endX, endY),
+					(0, 255,0), 2)
+				cv2.putText(frame, name, (startX, y),
+					cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 2)
+				
+				if(len(guesslist) > speed):
+					result=mode(guesslist)
+					checklist.append(result)
+					
+					data['user'].append({
+					'uuid':result,
+					'startX':str(startX),
+					'startY':str(startY),
+					'endX':str(endX),
+					'endY':str(endY)
+					})
+					print(frame)
+					cv2.imwrite(name+".jpg",frame[startY:endY,startX:endX])
+					with open('data.json',"w") as outfile:
+						json.dump(data,outfile)
+					print("JSON- added")
+					guesslist.clear()
+					
+				
 
 	# update the FPS counter
 	fps.update()
@@ -121,19 +143,10 @@ while True:
 	cv2.imshow("Frame", frame)
 	key = cv2.waitKey(1) & 0xFF
 
-	if(len(guesslist) > speed):
-		break
 	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
 		break
-
 # stop the timer and display FPS information
-if(mode(guesslist)=="d63560a7-913d-4074-8e6e-0c361ba7e681"):
-	print("Pepijn")
-if(mode(guesslist) == "unknown"):
-	print("Try again please.....")
-else:
-	print(mode(guesslist))
 fps.stop()
 print("Elasped time: {:.2f}".format(fps.elapsed()))
 print("Approx. FPS: {:.2f}".format(fps.fps()))
