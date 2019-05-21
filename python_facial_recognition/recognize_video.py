@@ -24,9 +24,8 @@ embedding_model="openface_nn4.small2.v1.t7"
 recognizer="output/recognizer.pickle"
 le="output/le.pickle"
 confidence_c= 0.8
-data = {}
+data = []
 speed = 20
-data['user'] = []
 checklist = []
 
 protoPath = os.path.sep.join([dectector, "deploy.prototxt"])
@@ -120,12 +119,13 @@ while True:
 					result=mode(guesslist)
 					checklist.append(result)
 					
-					data['user'].append({
+					data.append({
 					'uuid':result,
-					'startX':str(startX),
-					'startY':str(startY),
-					'endX':str(endX),
-					'endY':str(endY)
+					'confidence':confidence.item(),
+					'startX':startX.item(),
+					'startY':startY.item(),
+					'endX':endX.item(),
+					'endY':endY.item()
 					})
 					print(frame)
 					cv2.imwrite(name+".jpg",frame[startY:endY,startX:endX])
