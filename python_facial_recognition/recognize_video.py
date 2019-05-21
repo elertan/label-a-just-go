@@ -127,7 +127,6 @@ while True:
 					'endX':endX.item(),
 					'endY':endY.item()
 					})
-					print(frame)
 					cv2.imwrite(name+".jpg",frame[startY:endY,startX:endX])
 					with open('data.json',"w") as outfile:
 						json.dump(data,outfile)
