@@ -1,8 +1,15 @@
-use actix_web::{HttpServer, App, web, Responder};
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate serde_derive;
 
-fn registration_details_route(uuid_string: web::Path<(String)>) -> impl Responder {
-    format!("Hello {}!", uuid_string)
-}
+use actix_web::{HttpServer, App, web};
+
+mod models;
+mod schema;
+mod utils;
+mod routes;
+mod route_handlers;
 
 fn main() -> std::io::Result<()> {
     let addr = std::env::var("APP_ADDRESS").expect("APP_ADDRESS env not set");
@@ -11,9 +18,9 @@ fn main() -> std::io::Result<()> {
 
     let server = HttpServer::new(|| {
         App::new()
-            .service(
-                web::resource("/api/v1/registration-details/{token}")
-                    .route(web::get().to(registration_details_route))
+            .configure(crate::routes::config)
+            .default_service(
+                web::route().to(crate::route_handlers::route_not_found)
             )
     });
 

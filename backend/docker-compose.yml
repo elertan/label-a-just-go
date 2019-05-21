@@ -22,6 +22,8 @@ services:
     command: [sh, -c, "./wait-for-it.sh db:5432 -- diesel setup && diesel migration run && cargo watch -x run"]
   db:
     image: postgres
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_USER: docker
       POSTGRES_PASSWORD: docker
