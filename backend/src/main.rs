@@ -2,14 +2,16 @@
 extern crate diesel;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate derive_more;
 
-use actix_web::{HttpServer, App, web};
+use actix_web::{web, App, HttpServer};
 
 mod models;
+mod route_handlers;
+mod routes;
 mod schema;
 mod utils;
-mod routes;
-mod route_handlers;
 
 fn main() -> std::io::Result<()> {
     let addr = std::env::var("APP_ADDRESS").expect("APP_ADDRESS env not set");
@@ -19,12 +21,11 @@ fn main() -> std::io::Result<()> {
     let server = HttpServer::new(|| {
         App::new()
             .configure(crate::routes::config)
-            .default_service(
-                web::route().to(crate::route_handlers::route_not_found)
-            )
+            .default_service(web::route().to(crate::route_handlers::route_not_found))
     });
 
-    server.bind(&bind_addr)
-        .expect(format!("Could not bind app on {}", &bind_addr).as_str())
+    server
+        .bind(&bind_addr)
+        .unwrap_or_else(|_| panic!("Could not bind app on {}", &bind_addr))
         .run()
 }
