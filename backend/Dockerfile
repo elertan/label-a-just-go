@@ -1,5 +1,9 @@
 FROM rust:1.34.1
 
+# Disables weird address issue on linux
+RUN mkdir ~/.gnupg
+RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
+
 # Python script dependencies
 ENV PATH /usr/local/bin:$PATH
 ENV LANG C.UTF-8
