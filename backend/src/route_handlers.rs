@@ -4,6 +4,8 @@ use actix_web::web::Json;
 use std::fs;
 use std::io::Write;
 
+use crate::repositories::person::GetAll;
+use crate::AppState;
 use actix_multipart::{Field, Multipart, MultipartError};
 use actix_service::ServiceExt;
 use actix_web::{error, web, Error, HttpResponse};
@@ -16,15 +18,22 @@ pub fn route_not_found() -> Json<ApiResult<String>> {
     )))
 }
 
-pub fn event_invitation(uuid_string: web::Path<String>) -> Json<ApiResult<String>> {
-    let parse_result = uuid::Uuid::parse_str(uuid_string.as_str());
-    if parse_result.is_err() {
-        return Json(ApiResult::err(ApiError::from_err_code(
-            ApiErrorCode::InvalidUuid,
-        )));
-    }
+pub fn event_invitation(
+    state: web::Data<AppState>, uuid_string: web::Path<String>,
+) -> impl Future<Item=HttpResponse, Error=Error> {
+//    let parse_result = uuid::Uuid::parse_str(uuid_string.as_str());
+//    if parse_result.is_err() {
+//        return Json(ApiResult::err(ApiError::from_err_code(
+//            ApiErrorCode::InvalidUuid,
+//        )));
+//    }
 
-    Json(ApiResult::success(format!("Hello, {}!", uuid_string)))
+    let msg = GetAll;
+    state.db.send(msg).from_err().and_then(|res| match res {
+        Ok(val) => Ok(HttpResponse::Ok().json(val)),
+        Err(e) => Ok(HttpResponse::InternalServerError().finish()),
+    })
+    //    Json(ApiResult::success(format!("Hello, {}!", uuid_string)))
 }
 
 //#[derive(Serialize, Deserialize, Debug)]
@@ -51,7 +60,7 @@ pub struct ExtractFaceFromFieldResult {
 /// Extracts faces from a field type and stores them into a ExtractFaceFromFieldResult
 pub fn extract_faces_from_field(
     field: Field,
-) -> impl Future<Item = ExtractFaceFromFieldResult, Error = Error> {
+) -> impl Future<Item=ExtractFaceFromFieldResult, Error=Error> {
     let file_path_string = format!("{}.png", uuid::Uuid::new_v4());
     let file = match fs::File::create(&file_path_string) {
         Ok(file) => file,
@@ -81,10 +90,10 @@ pub fn extract_faces_from_field(
                     read_bytes += bytes.len() as u64;
                     Ok((file, read_bytes))
                 })
-                .map_err(|e: error::BlockingError<MultipartError>| match e {
-                    error::BlockingError::Error(e) => e,
-                    error::BlockingError::Canceled => MultipartError::Incomplete,
-                })
+                    .map_err(|e: error::BlockingError<MultipartError>| match e {
+                        error::BlockingError::Error(e) => e,
+                        error::BlockingError::Canceled => MultipartError::Incomplete,
+                    })
             })
             .map(move |(_, _)| {
                 let path = format!("../{}", &file_path_string);
@@ -114,7 +123,7 @@ pub fn extract_faces_from_field(
 
 //https://github.com/actix/examples/blob/master/multipart/src/main.rs
 /// Extracts the faces for a multipart request type
-pub fn extract_faces(multipart: Multipart) -> impl Future<Item = HttpResponse, Error = Error> {
+pub fn extract_faces(multipart: Multipart) -> impl Future<Item=HttpResponse, Error=Error> {
     multipart
         // If any field of the multipart fails, throw an error
         .map_err(error::ErrorInternalServerError)

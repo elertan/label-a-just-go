@@ -1,6 +1,7 @@
 import numpy as np
 import argparse
 import imutils
+import json
 # import pickle
 import cv2
 import os
@@ -64,6 +65,14 @@ for i in range(0, detections.shape[2]):
         # face
         box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
         (startX, startY, endX, endY) = box.astype("int")
+
+        # result_data = {}
+        # result_data["start_x"] = startX
+        # result_data["start_y"] = startY
+        # result_data["end_x"] = endX
+        # result_data["end_y"] = endY
+        #
+        # print(json.dumps(result_data))
 
         print('{' + '"start_x": {}, "end_x": {}, "start_y": {}, "end_y": {}'.format(startX, endX, startY, endY) + '}')
         has_echoed = True
