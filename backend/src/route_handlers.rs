@@ -16,7 +16,7 @@ pub fn route_not_found() -> Json<ApiResult<String>> {
     )))
 }
 
-pub fn event_invitation(uuid_string: web::Path<(String)>) -> Json<ApiResult<String>> {
+pub fn event_invitation(uuid_string: web::Path<String>) -> Json<ApiResult<String>> {
     let parse_result = uuid::Uuid::parse_str(uuid_string.as_str());
     if parse_result.is_err() {
         return Json(ApiResult::err(ApiError::from_err_code(
@@ -27,13 +27,13 @@ pub fn event_invitation(uuid_string: web::Path<(String)>) -> Json<ApiResult<Stri
     Json(ApiResult::success(format!("Hello, {}!", uuid_string)))
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ExtractFaceResult {
-    pub start_x: u32,
-    pub end_x: u32,
-    pub start_y: u32,
-    pub end_y: u32,
-}
+//#[derive(Serialize, Deserialize, Debug)]
+//pub struct ExtractFaceResult {
+//    pub start_x: u32,
+//    pub end_x: u32,
+//    pub start_y: u32,
+//    pub end_y: u32,
+//}
 
 #[derive(Serialize, Deserialize, Debug, Display)]
 pub enum ExtractFaceError {
@@ -42,14 +42,16 @@ pub enum ExtractFaceError {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SaveFileAndExtractFaceResult {
+pub struct ExtractFaceFromFieldResult {
     pub filename: String,
-    pub result: Result<ExtractFaceResult, ExtractFaceError>,
+    pub data: Option<crate::utils::facial_recognition::ExtractFaceResult>,
+    pub err: Option<ExtractFaceError>,
 }
 
-pub fn save_file_and_extract_face(
+/// Extracts faces from a field type and stores them into a ExtractFaceFromFieldResult
+pub fn extract_faces_from_field(
     field: Field,
-) -> impl Future<Item = SaveFileAndExtractFaceResult, Error = Error> {
+) -> impl Future<Item = ExtractFaceFromFieldResult, Error = Error> {
     let file_path_string = format!("{}.png", uuid::Uuid::new_v4());
     let file = match fs::File::create(&file_path_string) {
         Ok(file) => file,
@@ -85,16 +87,22 @@ pub fn save_file_and_extract_face(
                 })
             })
             .map(move |(_, _)| {
+                let path = format!("../{}", &file_path_string);
+                let result = crate::utils::facial_recognition::extract_face(path.as_str());
+
                 fs::remove_file(&file_path_string).expect("File could not be removed.");
 
-                SaveFileAndExtractFaceResult {
-                    filename,
-                    result: Ok(ExtractFaceResult {
-                        start_x: 0,
-                        end_x: 0,
-                        start_y: 0,
-                        end_y: 0,
-                    }),
+                match result {
+                    Ok(data) => ExtractFaceFromFieldResult {
+                        filename,
+                        data: Some(data),
+                        err: None,
+                    },
+                    Err(_) => ExtractFaceFromFieldResult {
+                        filename,
+                        data: None,
+                        err: Some(ExtractFaceError::NoFaceFound),
+                    },
                 }
             })
             .map_err(|e| {
@@ -105,22 +113,22 @@ pub fn save_file_and_extract_face(
 }
 
 //https://github.com/actix/examples/blob/master/multipart/src/main.rs
+/// Extracts the faces for a multipart request type
 pub fn extract_faces(multipart: Multipart) -> impl Future<Item = HttpResponse, Error = Error> {
     multipart
+        // If any field of the multipart fails, throw an error
         .map_err(error::ErrorInternalServerError)
-        .map(|field| save_file_and_extract_face(field).into_stream())
+        // For every field of the multipart data do the face extraction process
+        .map(|field| extract_faces_from_field(field).into_stream())
+        // Flatten the array of streams into a single vector
         .flatten()
+        // Collect the output
         .collect()
+        // If the face extraction failed for one of these processes handle the error
         .map_err(|e| {
             println!("failed: {}", e);
             e
         })
+        // Map the output into a http response of an apiresult
         .map(|data| HttpResponse::Ok().json(ApiResult::success(data)))
-
-    // I want ->
-    //    Json(
-    //        ApiResult::success(
-    //            multipart_data_results.fold() <- Would be a vec of the data in the last map
-    //        )
-    //    )
 }

@@ -17,6 +17,7 @@ services:
       - ./src/:/usr/local/app/src/
       - ./Cargo.toml:/usr/local/app/Cargo.toml
       - ./migrations/:/usr/local/app/migrations/
+      - ./scripts/:/usr/local/app/scripts/
     depends_on:
       - db
     command: [sh, -c, "./wait-for-it.sh db:5432 -- diesel setup && diesel migration run && cargo watch -x run"]
