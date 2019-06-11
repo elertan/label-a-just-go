@@ -39,7 +39,7 @@ le = pickle.loads(open(le, "rb").read())
 
 
 vs = VideoStream(src=0).start()
-time.sleep(2.0)
+time.sleep(10.0)
 print("The cam is filming")
 guesslist = []
 
@@ -51,7 +51,7 @@ while True:
 	frame = vs.read()
 
 
-	frame = imutils.resize(frame, width=600)
+	frame = imutils.resize(frame, width=320)
 	(h, w) = frame.shape[:2]
 
 	# construct a blob from the image
