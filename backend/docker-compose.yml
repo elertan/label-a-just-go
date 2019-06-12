@@ -1,0 +1,30 @@
+version: '3.5'
+
+services:
+  web:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      args:
+        DATABASE_URL: "postgres://docker:docker@db/app"
+    ports:
+      - 80:80
+    environment:
+      APP_PORT: 80
+      APP_ADDRESS: "0.0.0.0"
+      DATABASE_URL: "postgres://docker:docker@db/app"
+    volumes:
+      - ./src/:/usr/local/app/src/
+      - ./Cargo.toml:/usr/local/app/Cargo.toml
+      - ./migrations/:/usr/local/app/migrations/
+      - ./scripts/:/usr/local/app/scripts/
+    depends_on:
+      - db
+    command: [sh, -c, "./wait-for-it.sh db:5432 -- diesel setup && diesel migration run && cargo watch -x run"]
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker

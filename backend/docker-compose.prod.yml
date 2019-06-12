@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+  web:
+#    Take out volumes
+    volumes: []
+#    Use release build
+    command: [sh, -c, "./wait-for-it.sh db:5432 -- diesel setup && diesel migration run && cargo run --release"]
+    restart: always
+  db:
+#    Disable exposing db port
+    ports: []
+    restart: always
