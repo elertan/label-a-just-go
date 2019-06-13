@@ -95,7 +95,8 @@ class _FaceRecorderState extends State<FaceRecorder> {
         if (recordingTimer != null) {
           recordingTimer.cancel();
         }
-        recordingTimer = Timer.periodic(Duration(milliseconds: 1000), handleTimerTick);
+        recordingTimer =
+            Timer.periodic(Duration(milliseconds: 1000), handleTimerTick);
       } catch (e) {
         // handle error
         return;
@@ -113,10 +114,10 @@ class _FaceRecorderState extends State<FaceRecorder> {
       if (captureTimeSeconds > maxCaptureTime) {
         // Finished
         timer.cancel();
+        capturing = false;
 
         // Save
       }
-      capturing = false;
     });
   }
 

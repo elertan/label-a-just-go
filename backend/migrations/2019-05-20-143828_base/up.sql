@@ -20,12 +20,16 @@ CREATE TABLE event_invitation (
     id SERIAL PRIMARY KEY,
     person_id INTEGER NOT NULL REFERENCES person(id),
     event_id INTEGER NOT NULL REFERENCES event(id),
-    token uuid DEFAULT uuid_generate_v4(),
-    status INTEGER NOT NULL
+    token uuid NOT NULL DEFAULT uuid_generate_v4(),
+    status INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE photo (
     id SERIAL PRIMARY KEY,
     person_id INTEGER NOT NULL REFERENCES person(id),
-    filename VARCHAR(100) NOT NULL
+    filename VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP
 );

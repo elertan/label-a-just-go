@@ -12,8 +12,10 @@ table! {
         id -> Int4,
         person_id -> Int4,
         event_id -> Int4,
-        token -> Nullable<Uuid>,
+        token -> Uuid,
         status -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 
@@ -32,6 +34,8 @@ table! {
         id -> Int4,
         person_id -> Int4,
         filename -> Varchar,
+        created_at -> Timestamp,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 

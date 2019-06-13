@@ -4,13 +4,14 @@ use actix_web::web::Json;
 use std::fs;
 use std::io::Write;
 
-use crate::repositories::person::GetAll;
+use crate::repositories::event_invitation::GetEventInvitationByToken;
 use crate::AppState;
 use actix_multipart::{Field, Multipart, MultipartError};
 use actix_service::ServiceExt;
 use actix_web::{error, web, Error, HttpResponse};
 use futures::future::{err, Either};
 use futures::{Future, Stream};
+
 
 pub fn route_not_found() -> Json<ApiResult<String>> {
     Json(ApiResult::err(ApiError::from_err_code(
@@ -21,18 +22,37 @@ pub fn route_not_found() -> Json<ApiResult<String>> {
 pub fn event_invitation(
     state: web::Data<AppState>, uuid_string: web::Path<String>,
 ) -> impl Future<Item=HttpResponse, Error=Error> {
-//    let parse_result = uuid::Uuid::parse_str(uuid_string.as_str());
-//    if parse_result.is_err() {
-//        return Json(ApiResult::err(ApiError::from_err_code(
-//            ApiErrorCode::InvalidUuid,
-//        )));
-//    }
+    let parse_result = uuid::Uuid::parse_str(uuid_string.as_str());
+    if parse_result.is_err() {
+        return futures::future::ok(
+            HttpResponse::Ok().json(
+                ApiResult::err(
+                    ApiError::from_err_code(
+                        ApiErrorCode::InvalidUuid,
+                    )
+                )
+            )
+        );
+    }
 
-    let msg = GetAll;
-    state.db.send(msg).from_err().and_then(|res| match res {
-        Ok(val) => Ok(HttpResponse::Ok().json(val)),
-        Err(e) => Ok(HttpResponse::InternalServerError().finish()),
-    })
+
+    let msg = GetEventInvitationByToken {
+        token: parse_result.unwrap()
+    };
+    state
+        .db
+        .send(msg)
+        .from_err()
+        .and_then(|res| match res {
+            Ok(val) => Ok(HttpResponse::Ok().json(val)),
+            Err(_) => Ok(HttpResponse::InternalServerError().finish()),
+        })
+
+//    let msg = GetAll;
+//    state.db.send(msg).from_err().and_then(|res| match res {
+//        Ok(val) => Ok(HttpResponse::Ok().json(val)),
+//        Err(_) => Ok(HttpResponse::InternalServerError().finish()),
+//    })
     //    Json(ApiResult::success(format!("Hello, {}!", uuid_string)))
 }
 
