@@ -4,6 +4,7 @@ use actix_web::web::Json;
 use std::fs;
 use std::io::Write;
 
+use crate::repositories::person::GetAll;
 use crate::repositories::event_invitation::GetEventInvitationByToken;
 use crate::AppState;
 use actix_multipart::{Field, Multipart, MultipartError};
@@ -39,20 +40,21 @@ pub fn event_invitation(
     let msg = GetEventInvitationByToken {
         token: parse_result.unwrap()
     };
-    state
-        .db
-        .send(msg)
-        .from_err()
-        .and_then(|res| match res {
-            Ok(val) => Ok(HttpResponse::Ok().json(val)),
-            Err(_) => Ok(HttpResponse::InternalServerError().finish()),
-        })
+//    state
+//        .db
+//        .send(msg)
+//        .from_err()
+//        .and_then(|res| match res {
+//            Ok(val) => Ok(HttpResponse::Ok().json(val)),
+//            Err(_) => Ok(HttpResponse::InternalServerError().finish()),
+//        })
 
-//    let msg = GetAll;
-//    state.db.send(msg).from_err().and_then(|res| match res {
-//        Ok(val) => Ok(HttpResponse::Ok().json(val)),
-//        Err(_) => Ok(HttpResponse::InternalServerError().finish()),
-//    })
+    let msg = GetAll;
+    state.db.send(msg).from_err().and_then(|res| match res {
+        Ok(val) => Ok(HttpResponse::Ok().json(val)),
+        Err(_) => Ok(HttpResponse::InternalServerError().finish()),
+    })
+
     //    Json(ApiResult::success(format!("Hello, {}!", uuid_string)))
 }
 

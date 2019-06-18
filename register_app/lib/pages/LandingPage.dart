@@ -11,7 +11,7 @@ class LandingPage extends StatelessWidget {
   BuildContext _ctx;
 
   void _handleScanQRCodeButtonPressed() async {
-    String barcode = null;
+    String barcode;
     try {
       barcode = await BarcodeScanner.scan();
     } on PlatformException catch (e) {
@@ -74,6 +74,10 @@ class LandingPage extends StatelessWidget {
 //    dispose();
   }
 
+  void _handleEnterCodeButtonPressed() {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     _ctx = context;
@@ -119,6 +123,18 @@ class LandingPage extends StatelessWidget {
                         style: TextStyle(fontSize: 16),
                       ),
                       onPressed: _handleScanQRCodeButtonPressed,
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      child: Text("OF", textAlign: TextAlign.center),
+                    ),
+                    RaisedButton(
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      child: Text(
+                        "Voer code handmatig in",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      onPressed: _handleEnterCodeButtonPressed,
                     ),
                     Container(
                       margin: EdgeInsets.symmetric(vertical: 10),
